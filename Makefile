@@ -2,10 +2,10 @@
 
 CC = riscv64-unknown-elf-gcc
 
-SRC ?= vmerge_try.c
+SRC ?= vmerge.c
 
-CHIPYARD = /home/artjom/Uni/nir/chipyard
-RISCV_TOOLS = /home/artjom/Uni/nir/chipyard/.conda-env/riscv-tools
+CHIPYARD = /root/chipyard
+RISCV_TOOLS = /root/chipyard/.conda-env/riscv-tools
 
 TARGET = $(SRC:.c=.elf)
 
