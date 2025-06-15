@@ -7,9 +7,9 @@ SRC ?= vmerge_try.c
 TARGET = $(SRC:.c=.elf)
 
 INCLUDES = \
-	-Ichipyard/generators/ara/ara/apps/riscv-tests/isa/macros/vector \
-	-Ichipyard/.conda-env/riscv-tools/include/riscv \
-	-Ichipyard/.conda-env/riscv-tools/sysroot/usr/include
+	-I../chipyard/generators/ara/ara/apps/riscv-tests/isa/macros/vector \
+	-I../chipyard/.conda-env/riscv-tools/include/riscv \
+	-I../chipyard/.conda-env/riscv-tools/sysroot/usr/include
 
 CCFLAGS = \
 	-march=rv64gcv \

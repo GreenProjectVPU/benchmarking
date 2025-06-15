@@ -2,7 +2,6 @@
 #include <stdio.h>
 //#include "bench_macros.h"
 
-// THROUGHPUT 
 unsigned long read_cycles(void)
 {
   unsigned long cycles;
@@ -10,6 +9,7 @@ unsigned long read_cycles(void)
   return cycles;
 }
 
+// THROUGHPUT 
 void TEST_CASE1() {
   //TIM_START;
   VSET(16, e8, m1);
@@ -70,8 +70,8 @@ void TEST_CASE2() {
 
   unsigned long total_cycles = end - start;
 
-  printf("[LATENCY] Total cycles for %d vmerge.vvm: %lu\n", REPS, total_cycles);
-  printf("[LATENCY] Average cycles per vmerge.vvm: %.2f\n", (float)total_cycles / REPS);
+  printf("[LATENCY] Total cycles for %d vmerge.vvm: %lu\n", (REPS * 3), total_cycles);
+  printf("[LATENCY] Average cycles per vmerge.vvm: %.2f\n", (float)total_cycles / (REPS * 3));
 }
 
 /*
