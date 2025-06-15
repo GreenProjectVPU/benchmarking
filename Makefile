@@ -1,19 +1,15 @@
-# riscv64-unknown-elf-gcc -march=rv64gcv -mabi=lp64d -O3 -o vmerge_try.o vmerge_try.c -I$(CHIPYARD)generators/ara/ara/apps/riscv-tests/isa/macros/vector -I$(CHIPYARD).conda-env/riscv-tools/include/riscv -I$(CHIPYARD).conda-env/riscv-tools/sysroot/usr/include
+# riscv64-unknown-elf-gcc -march=rv64gcv -mabi=lp64d -O3 -o vmerge_try.o vmerge_try.c -Ichipyard/generators/ara/ara/apps/riscv-tests/isa/macros/vector -Ichipyard/.conda-env/riscv-tools/include/riscv -Ichipyard/.conda-env/riscv-tools/sysroot/usr/include
 
 CC = riscv64-unknown-elf-gcc
 
 SRC ?= vmerge_try.c
 
-CHIPYARD = /home/artjom/Uni/nir/chipyard
-RISCV_TOOLS = /home/artjom/Uni/nir/chipyard/.conda-env/riscv-tools
-
 TARGET = $(SRC:.c=.elf)
 
 INCLUDES = \
-	-I$(CHIPYARD)/generators/ara/ara/apps/riscv-tests/isa/macros/vector \
-	-I$(RISCV_TOOLS)/include/riscv \
-	-I$(RISCV_TOOLS)/sysroot/usr/include \
-	-I./include
+	-Ichipyard/generators/ara/ara/apps/riscv-tests/isa/macros/vector \
+	-Ichipyard/.conda-env/riscv-tools/include/riscv \
+	-Ichipyard/.conda-env/riscv-tools/sysroot/usr/include
 
 CCFLAGS = \
 	-march=rv64gcv \
@@ -22,7 +18,7 @@ CCFLAGS = \
 	-O0 \
 	$(INCLUDES)
 
-ISA = rv64gcv
+ISA = rv64gcv_zicntr
 SPIKE_FLAGS = \
 	--isa=$(ISA)
 
@@ -30,6 +26,9 @@ all: $(TARGET)
 
 $(TARGET): $(SRC)
 	$(CC) $(CCFLAGS) -o $@ $<
+
+ass:
+	$(CC) $(CCFLAGS) -S vmerge.c -o vmerge.S 
 
 sim:
 	spike $(SPIKE_FLAGS) -l --log=spike_log.txt pk $(TARGET)
