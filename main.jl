@@ -12,6 +12,10 @@ function generate_test_source(template_name, cmd, repeats, setup)
 		content = @match word begin
 			r"\$CMDTP times \$\d+" => replace(content, word => repeat(cmd["main"] * "\n", repeats[word[end]]))
 			r"\$CMDLP times \$\d+" => replace(content, word => repeat(cmd["follow"] * "\n", repeats[word[end]]))
+			r"\$\d+" => begin
+				nword = replace(word, word[end-1:end] => repeats[word[end]])
+				replace(content, word => nword)
+			end
 			"\$SETUP" => replace(content, word => setup)
 			_ => content
 		end
