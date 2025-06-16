@@ -28,8 +28,8 @@ end
 # corresponding to $<number>
 # variables in *.c source file
 repeats = Dict(
-	'1' => 5,
-	'2' => 100
+	'1' => 10,
+	'2' => 1000
 )
 
 # main is the command being tested
@@ -40,8 +40,15 @@ commands = Dict(
 		"vxm" => Dict(
 			"main" => "asm volatile(\"vmerge.vxm v3, v1, %[A], v0\" ::[A] \"r\"(scalar));",
 			"follow" => "asm volatile(\"vmerge.vxm v3, v3, %[A], v0\" ::[A] \"r\"(scalar));"
-			),
-		"vvm" => Dict()
+		),
+		"vvm" => Dict(
+			"main" => "asm volatile(\"vmerge.vvm v3, v1, v2, v0\");",
+			"follow" => "asm volatile(\"vmerge.vvm v3, v3, v2, v0\");"
+		),
+		"vim" => Dict(
+			"main" => "asm volatile(\"vmerge.vim v3, v1, -1, v0\");",
+			"follow" => "asm volatile(\"vmerge.vim v3, v3, -1, v0\");"
+		)
 	)
 )
 
@@ -50,20 +57,31 @@ commands = Dict(
 setups = Dict(
 	"vmerge" => Dict(
 		"vxm" => """
-		const uint64_t scalar = 0x00000000deadbeef;
+			const uint64_t scalar = 0x00000000deadbeef;
 
-		VSET(16, e8, m1);
-		VLOAD_8(v1, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8);
-		VLOAD_8(v2, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1);
-		VLOAD_8(v3, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1);
-		VLOAD_8(v0, 0xAA, 0x55);
-		"""
-		)
+			VSET(16, e8, m1);
+			VLOAD_8(v1, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8);
+			VLOAD_8(v3, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1);
+			VLOAD_8(v0, 0xAA, 0x55);
+			""",
+		"vvm" => """
+			VSET(16, e8, m1);
+			VLOAD_8(v1, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8);
+			VLOAD_8(v2, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1);
+			VLOAD_8(v3, 8, 7, 6, 5, 4, 3, 2, 1, 8, 7, 6, 5, 4, 3, 2, 1);
+			VLOAD_8(v0, 0xAA, 0x55);
+			""",
+		"vim" => """
+			VSET(16, e8, m1);
+			VLOAD_8(v1, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8);
+			VLOAD_8(v0, 0xAA, 0x55);
+			"""
+	)
 )
 
 # instructions to test
 instructions = Dict(
-	"vmerge" => ["vxm"]
+	"vmerge" => ["vxm", "vvm", "vim"]
 )
 
 cd("tests")
@@ -80,24 +98,17 @@ for dir in dirs
 
 	for instr in instructions
 		ins = instr.first
-		kind = instr.second[1]
-		println(" - instruction $(ins)_$(kind)")
-		gen_content = generate_test_source("../template.c", commands[ins][kind], repeats, setups[ins][kind])
+		kinds = instr.second
+		for kind in kinds
+			println(" - instruction $(ins)_$(kind)")
+			gen_content = generate_test_source("../template.c", commands[ins][kind], repeats, setups[ins][kind])
 
-		write("generated/$(ins*"_"*kind).c", gen_content)
+			write("generated/$(ins*"_"*kind).c", gen_content)
 
-		println("! generated generated/$(ins*"_"*kind).c")
+			println("! generated generated/$(ins*"_"*kind).c")
+		end
 	end
 
 	cd("..")
 	println("! exited $(pwd())")
 end
-
-# cd("tests/vmerge")
-
-
-
-# mkdir("generated")
-# cd("generated")
-# write("vmerge_vxm.c", content)
-# println(content)

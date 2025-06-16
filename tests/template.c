@@ -12,6 +12,8 @@ unsigned long read_cycles(void)
 void TEST_CASE1() {
   $SETUP
 
+  const int REPS = $2
+
   // warmup
   $CMDTP times $1
 
@@ -33,6 +35,8 @@ void TEST_CASE1() {
 // LATENCY
 void TEST_CASE2() {
   $SETUP
+
+  const int REPS = $2
 
   // warmup
   $CMDLP times $1
