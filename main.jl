@@ -44,7 +44,24 @@ repeats = Dict(
 			'2' => 1000,
 			'3' => 1000
 		),
-	)
+	),
+	"vrgather" => Dict(
+        "vxm" => Dict(
+            '1' => 5,
+            '2' => 1000,
+            '3' => 1000,
+        ),
+        "vvm" => Dict(
+            '1' => 5,
+            '2' => 10000,
+            '3' => 20000
+        ),
+        "vim" => Dict(
+            '1' => 5,
+            '2' => 1000,
+            '3' => 1000
+        ),
+    )
 )
 
 # main is the command being tested
@@ -68,7 +85,25 @@ commands = Dict(
 			"main" => "asm volatile(\"vmerge.vim v3, v1, -1, v0\");",
 			"follow" => "asm volatile(\"vmerge.vim v3, v3, -1, v0\");"
 		)
-	)
+	),
+	"vrgather" => Dict(
+        "vxm" => Dict(
+            "main" => "asm volatile(\"vrgather.vxm v3, v1, %[A]\");",
+            "follow" => "asm volatile(\"vrgather.vxm v3, v3, %[A]\");"
+        ),
+        "vvm" => Dict(
+            "main" => "asm volatile(\"vrgather.vvm v3, v1, v2\");",
+            "follow" => 
+            """
+            asm volatile(\"vrgather.vvm v3, v1, v2\");
+            asm volatile(\"vrgather.vvm v1, v3, v2\");
+            """
+        ),
+        "vim" => Dict(
+            "main" => "asm volatile(\"vrgather.vim v3, v1, -1\");",
+            "follow" => "asm volatile(\"vrgather.vim v3, v3, -1\");"
+        )
+    )
 )
 
 # setups needed for a testbench
@@ -95,12 +130,29 @@ setups = Dict(
 			VLOAD_8(v1, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8);
 			VLOAD_8(v0, 0xAA, 0x55);
 			"""
-	)
+	),
+	"vrgather" => Dict(
+        "vxm" => """
+            const uint64_t scalar = 3;
+            VSET(16, e8, m1);
+            VLOAD_8(v1, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8);
+            """,
+        "vvm" => """
+            VSET(16, e8, m1);
+            VLOAD_8(v1, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8);
+            VLOAD_8(v2, 3, 2, 1, 0, 7, 6, 5, 4, 3, 2, 1, 0, 7, 6, 5, 4);
+            """,
+        "vim" => """
+            VSET(16, e8, m1);
+            VLOAD_8(v1, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 3, 4, 5, 6, 7, 8);
+            """
+    )
 )
 
 # instructions to test
 instructions = Dict(
-	"vmerge" => ["vxm", "vvm", "vim"]
+	"vmerge" => ["vxm", "vvm", "vim"],
+	"vrgather" => ["vxm", "vvm", "vim"]
 )
 
 cd("tests")
