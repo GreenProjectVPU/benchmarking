@@ -22,6 +22,22 @@ Run vmerge.c:
 
 `./simulator-chipyard.harness-GENV256D128ShuttleConfig pk /workspace/vmerge.elf`
 
+
+
 ### 2. Use a ready-made image
 
-//TODO: When all the files are ready to run, I will make a ready-made image so as not to build it locally (for now it makes no sense to publish an image that builds a single vmerge.c)
+Run other binary: 
+
+1. Pull ready-made image
+
+   `docker pull ankolesn/riscv-benchmarking:latest`
+
+2. Copy your binary into container
+
+   `docker cp /path/to/file/*.elf name_container:/root/chipyard/sims/verilator`
+
+3. Run binary
+
+   `make -j3 run-binary CONFIG=GENV256D128ShuttleConfig LOADME M=1 EXTRA_SIM_FLAGS=+cospike-printf=0 TIMEOUT_CYCLES=999999999999999999 BINARY=<your_binary_name>.elf`
+
+Link to dokerhub with the finished image: https://hub.docker.com/repository/docker/ankolesn/riscv-benchmarking/tags

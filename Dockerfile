@@ -12,7 +12,10 @@ RUN apt-get update && apt-get install -y \
     binutils-riscv64-unknown-elf && \
     rm -rf /var/lib/apt/lists/*
 
-RUN git clone --depth 1 https://github.com/ucb-bar/chipyard.git /root/chipyard
+RUN git clone --depth 1 https://github.com/GreenProjectVPU/chipyard.git /root/chipyard
+
+RUN cd /root/chipyard && \
+    git submodule update --init --recursive tools/cde
 
 RUN cd /root/chipyard && \
     git submodule update --init --recursive toolchains/riscv-tools/riscv-isa-sim
@@ -33,18 +36,22 @@ RUN curl -L -o miniconda.sh https://repo.anaconda.com/miniconda/Miniconda3-lates
 ENV PATH="/opt/conda/bin:${PATH}"
 ENV RISCV=/opt/conda/envs/chipyard/riscv-tools
 
-RUN conda init bash && \
-    echo "conda activate chipyard" >> ~/.bashrc && \
-    echo "export RISCV=${RISCV}" >> ~/.bashrc
+RUN conda init bash
 
 RUN cd /root/chipyard && \
     ./scripts/build-setup.sh -s 7 -s 8 -s 9 && \
     echo "export RISCV=/opt/riscv" >> /etc/bash.bashrc && \
     echo "export PATH=$RISCV/bin:$PATH" >> /etc/bash.bashrc
 
+RUN conda init bash && \
+    echo "conda activate chipyard" >> ~/.bashrc && \
+    echo "export RISCV=${RISCV}" >> ~/.bashrc
+
 WORKDIR /workspace
 COPY . .
 COPY ./tests .
+COPY ./utils .
+COPY ./sc-dt .
 
 RUN /bin/bash -c "\
     source /root/chipyard/env.sh && \
@@ -53,6 +60,19 @@ RUN /bin/bash -c "\
     cd /root/chipyard/sims/verilator && \
     make CONFIG=GENV256D128ShuttleConfig LOADMEM=1 EXTRA_SIM_FLAGS=+cospike-printf=0 TIMEOUT_CYCLES=999999999999999999"
 
-WORKDIR /root/chipyard/sims/verilator
+RUN git clone --depth 1 https://github.com/ucb-bar/libgloss-htif.git
+
+WORKDIR /workspace/libgloss-htif
+
+RUN /bin/bash -c "source /root/chipyard/env.sh && 
+    conda config --add channels ucb-bar && \
+    conda config --set channel_priority strict && \
+    conda install riscv-tools"
+
+RUN /bin/bash -c "$ mkdir build && \
+    cd build && \
+    ../configure --prefix=/root/chipyard/.conda-env/riscv-tools/riscv64-unknown-elf --host=riscv64-unknown-elf && \
+    make && \
+    make install"
 
 CMD ["/bin/bash"]
