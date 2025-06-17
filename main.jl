@@ -28,8 +28,23 @@ end
 # corresponding to $<number>
 # variables in *.c source file
 repeats = Dict(
-	'1' => 10,
-	'2' => 1000
+	"vmerge" => Dict(
+		"vxm" => Dict(
+			'1' => 5,
+			'2' => 1000,
+			'3' => 1000,
+		),
+		"vvm" => Dict(
+			'1' => 5,
+			'2' => 10000,
+			'3' => 20000
+		),
+		"vim" => Dict(
+			'1' => 5,
+			'2' => 1000,
+			'3' => 1000
+		),
+	)
 )
 
 # main is the command being tested
@@ -43,7 +58,11 @@ commands = Dict(
 		),
 		"vvm" => Dict(
 			"main" => "asm volatile(\"vmerge.vvm v3, v1, v2, v0\");",
-			"follow" => "asm volatile(\"vmerge.vvm v3, v3, v2, v0\");"
+			"follow" => 
+        """
+        asm volatile(\"vmerge.vvm v3, v1, v2, v0\");
+        asm volatile(\"vmerge.vvm v1, v3, v2, v0\");
+        """
 		),
 		"vim" => Dict(
 			"main" => "asm volatile(\"vmerge.vim v3, v1, -1, v0\");",
@@ -101,7 +120,7 @@ for dir in dirs
 		kinds = instr.second
 		for kind in kinds
 			println(" - instruction $(ins)_$(kind)")
-			gen_content = generate_test_source("../template.c", commands[ins][kind], repeats, setups[ins][kind])
+      gen_content = generate_test_source("../template.c", commands[ins][kind], repeats[ins][kind], setups[ins][kind])
 
 			write("generated/$(ins*"_"*kind).c", gen_content)
 

@@ -37,7 +37,8 @@ void TEST_CASE2() {
   $SETUP
 
   const int REPS = $2
-
+  const int REPS_MULT = $3
+    
   // warmup
   $CMDLP times $1
 
@@ -52,8 +53,8 @@ void TEST_CASE2() {
 
   unsigned long total_cycles = end - start;
 
-  printf("[LATENCY] Total cycles for %d: %lu\n", (REPS), total_cycles);
-  printf("[LATENCY] Average cycles per instr: %.2f\n", (float)total_cycles / (REPS));
+  printf("[LATENCY] Total cycles for %d: %lu\n", (REPS_MULT), total_cycles);
+  printf("[LATENCY] Average cycles per instr: %.2f\n", (float)total_cycles / (REPS_MULT));
 }
 
 int main(void) {
